@@ -4,462 +4,512 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>金融科普咨询平台</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1d4ed8',
-                        warnBg: '#fffbeb',
-                        warnText: '#92400e'
-                    }
-                }
-            }
+    <style>
+        * {
+            box-sizing: border-box;
+            margin:0;
+            padding:0;
         }
-    </script>
+        body {
+            background-color: #f5f7fa;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color:#1f2937;
+        }
+        .container{
+            max-width: 64rem;
+            margin:0 auto;
+            padding:0 1rem;
+        }
+        /* 弹窗遮罩 */
+        .modal-mask{
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.6);
+            z-index:50;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:1rem;
+        }
+        .modal-box{
+            background:#fff;
+            border-radius:0.75rem;
+            max-width:32rem;
+            width:100%;
+            padding:1.5rem;
+        }
+        .modal-scroll{
+            max-height:18rem;
+            overflow:auto;
+            font-size:0.875rem;
+            color:#4b5563;
+            margin-bottom:1rem;
+        }
+        .btn-group{
+            display:flex;
+            gap:0.75rem;
+        }
+        .btn{
+            flex:1;
+            padding:0.5rem 1rem;
+            border-radius:0.5rem;
+            font-size:1rem;
+        }
+        .btn-outline{
+            border:1px solid #d1d5db;
+            color:#4b5563;
+            background:white;
+        }
+        .btn-primary{
+            background:#2563eb;
+            color:white;
+            border:none;
+        }
+        /* header */
+        header{
+            background:#1d4ed8;
+            color:white;
+            box-shadow:0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header-inner{
+            max-width:64rem;
+            margin:0 auto;
+            padding:0.75rem 1rem;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+        .header-title{
+            font-size:1.25rem;
+            font-weight:bold;
+        }
+        .header-buttons button{
+            background:transparent;
+            border:none;
+            color:white;
+            font-size:0.875rem;
+            margin-left:1rem;
+        }
+        .header-buttons button.active{
+            text-decoration:underline;
+            font-weight:bold;
+        }
+        /* 警告提示条 */
+        .warn-bar{
+            background:#fffbeb;
+            border-bottom:1px solid #fcd34d;
+            color:#92400e;
+            font-size:0.875rem;
+            text-align:center;
+            padding:0.5rem 1rem;
+        }
+        main{
+            max-width:64rem;
+            margin:0 auto;
+            padding:1.5rem 1rem;
+        }
+        h2{
+            font-size:1.625rem;
+            font-weight:bold;
+            margin-bottom:0.5rem;
+        }
+        .desc-text{
+            color:#4b5563;
+            margin-bottom:2rem;
+        }
+        .card-grid{
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+            gap:1.25rem;
+            margin:2.5rem 0;
+        }
+        .card-item{
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:0.75rem;
+            padding:1.5rem;
+            box-shadow:0 1px 3px rgba(0,0,0,0.05);
+            cursor:pointer;
+            transition:0.25s;
+        }
+        .card-item:hover{
+            transform:translateY(-3px);
+            box-shadow:0 6px 14px rgba(0,0,0,0.1);
+        }
+        .card-item h3{
+            font-size:1.125rem;
+            font-weight:bold;
+            margin-bottom:0.5rem;
+        }
+        .card-item p{
+            font-size:0.875rem;
+            color:#6b7280;
+        }
+        .full-btn{
+            width:100%;
+            background:#1d4ed8;
+            color:white;
+            border:none;
+            padding:0.75rem;
+            border-radius:0.5rem;
+            font-size:1.125rem;
+        }
+        .info-panel{
+            margin-top:2.5rem;
+            padding:1.25rem;
+            background:#eff6ff;
+            border:1px solid #bfdbfe;
+            border-radius:0.75rem;
+            text-align:center;
+        }
+        .wx-text{
+            background:#fff;
+            display:inline-block;
+            padding:0.5rem 1rem;
+            border:1px solid #d1d5db;
+            border-radius:0.5rem;
+            font-family:monospace;
+            color:#1d4ed8;
+            font-weight:bold;
+            margin:0.5rem 0;
+        }
+        .small-note{
+            font-size:0.75rem;
+            color:#9ca3af;
+        }
+        /* 聊天页面 */
+        .chat-box{
+            background:#fff;
+            border:1px solid #d1d5db;
+            border-radius:0.5rem;
+            padding:1rem;
+            height:380px;
+            overflow-y:auto;
+            margin-bottom:1rem;
+        }
+        .chat-empty{
+            color:#9ca3af;
+            text-align:center;
+            padding:3rem 0;
+        }
+        .msg-user{
+            margin:0.75rem 0;
+            text-align:right;
+        }
+        .msg-user span{
+            background:#dbeafe;
+            padding:0.5rem 0.75rem;
+            border-radius:0.5rem;
+            display:inline-block;
+            max-width:85%;
+        }
+        .msg-bot{
+            margin:0.75rem 0;
+        }
+        .msg-bot span{
+            background:#f3f4f6;
+            padding:0.5rem 0.75rem;
+            border-radius:0.5rem;
+            display:inline-block;
+            max-width:85%;
+            white-space:pre-wrap;
+        }
+        .chat-input-row{
+            display:flex;
+            gap:0.5rem;
+        }
+        #chatInput{
+            flex:1;
+            border:1px solid #d1d5db;
+            border-radius:0.5rem;
+            padding:0.5rem 0.75rem;
+            font-size:1rem;
+        }
+        .send-btn{
+            background:#1d4ed8;
+            color:white;
+            border:none;
+            padding:0.5rem 1.25rem;
+            border-radius:0.5rem;
+        }
+        footer{
+            margin-top:3rem;
+            padding:1.25rem 0;
+            border-top:1px solid #e5e7eb;
+            text-align:center;
+            font-size:0.875rem;
+            color:#9ca3af;
+        }
+        .toast{
+            position:fixed;
+            top:1rem;
+            left:50%;
+            transform:translateX(-50%);
+            background:rgba(0,0,0,0.75);
+            color:white;
+            padding:0.5rem 1.25rem;
+            border-radius:0.5rem;
+            z-index:40;
+        }
+    </style>
 </head>
-<!-- 用户协议、隐私政策、免责声明 开始 -->
-<div class="bg-[#fffbeb] border border-amber-300 p-3 rounded my-3 text-[#92400e] text-sm">
-⚠️温馨提示：本平台仅为科普演示，不提供贷款、融资代办业务，凡是声称可以帮你洗白征信、强制下款均属于骗局，请提高警惕保护个人财产安全。
-</div>
-<div id="app"></div><div id="agreementModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg w-full max-w-lg max-h-[80vh] overflow-auto p-6">
-    <h2 class="text-xl font-bold mb-3">用户协议与隐私政策</h2>
-    <div class="text-sm text-gray-700 space-y-3">
-      <h3 class="font-semibold">免责声明</h3>
-      <p>本平台仅作金融知识科普演示，所有内容仅供参考，不构成任何投资、借贷、理财建议。一切依据本站内容做出的行为，风险由使用者本人自行承担。平台不承担任何经济与法律责任。请勿轻信任何贷款、代办融资相关信息。</p>
-
-      <h3 class="font-semibold">用户协议</h3>
-      <p>1. 本系统仅用于本地演示学习，不提供真实金融业务服务。</p>
-      <p>2. 用户禁止发布违法、借贷引流、诈骗、骚扰类内容，系统内置敏感词过滤。</p>
-      <p>3. 用户账号数据保存在浏览器本地，清除浏览器数据后数据会全部丢失。</p>
-      <p>4. 禁止利用本系统从事任何经营性、盈利性业务。</p>
-
-      <h3 class="font-semibold">隐私政策</h3>
-      <p>1. 本演示系统不会上传你的任何个人信息到外部服务器，全部数据存储在本机浏览器。</p>
-      <p>2. 不会收集手机号、身份证、银行卡等敏感隐私信息。</p>
-      <p>3. 如果你清除浏览器缓存，你的账号、对话记录将全部永久删除。</p>
-    </div>
-    <div class="mt-5 flex justify-end">
-      <button onclick="document.getElementById('agreementModal').remove()" class="bg-[#1d4ed8] text-white px-5 py-2 rounded">我已阅读并同意</button>
-    </div>
-  </div>
-</div>
-
-<footer class="mt-10 py-4 border-t text-center text-sm text-gray-500">
-  <p>©2026 金融科普咨询平台｜仅本地演示，不构成金融建议</p>
-  <p onclick="document.getElementById('agreementModal')?.scrollIntoView()" class="cursor-pointer text-blue-600 mt-1">查看《用户协议》《隐私政策》《免责声明》</p>
-</footer>
-<!-- 用户协议、隐私政策、免责声明 结束 -->
-<body class="bg-gray-50 text-gray-800 min-h-screen">
+<body>
 <div id="app"></div>
 
 <script>
-// ====================== 全局状态&本地存储工具 ======================
 const STORAGE_KEYS = {
-    USER: "fin_user",
-    ORDER: "fin_order",
-    CHAT: "fin_chat",
-    SENSITIVE: "fin_sensitive",
-    KNOWLEDGE: "fin_knowledge"
+    chatList: "fin_chat",
+    sensitiveWords: "fin_sensitive",
+    knowledgeBase: "fin_knowledge"
 }
 
-const Storage = {
-    get(key) {
-        const s = localStorage.getItem(key);
-        return s ? JSON.parse(s) : null;
-    },
-    set(key, val) {
-        localStorage.setItem(key, JSON.stringify(val));
-    }
-}
+// =========在这里只改你的微信号！！=========
+const MY_WECHAT = "za0613qqqq";
+// ==============================================
 
-// 初始化默认敏感词库
-if (!Storage.get(STORAGE_KEYS.SENSITIVE)) {
-    Storage.set(STORAGE_KEYS.SENSITIVE, [
-        "帮我贷款", "黑户下款", "网贷口子", "找放款渠道", "代办贷款", "帮我申请贷款", "无视征信借钱"
-    ])
-}
-
-//初始化知识库
-if (!Storage.get(STORAGE_KEYS.KNOWLEDGE)) {
-  Storage.set(STORAGE_KEYS.KNOWLEDGE, [
-    {q:"征信逾期有什么影响",a:"征信逾期会在个人征信报告留下记录，会影响房贷、信用卡、信贷审批；逾期记录结清后保留5年。建议按时还款，不要轻信网上消除征信的广告。"},
-    {q:"查询征信次数太多会怎样",a:"硬查询过多，金融机构会判定资金饥渴，会降低信贷审批通过率；建议一年查询征信不要过于频繁。"},
-    {q:"什么是负债率",a:"负债率一般指负债占收入/资产比例，银行审批信贷会重点参考，过高会降低审批通过率。"},
-    {q:"什么是征信查询次数过多？",a:"征信查询分为本人查询、机构查询。短时间多家机构查询你的征信记录，就是查询过多，会让金融机构认为你资金紧张，降低审批通过率，建议半年内不要频繁申请信贷产品。"},
-    {q:"网贷多了有什么后果？",a:"网贷笔数过多，会拉高你的负债水平，银行审批贷款会重点评估；即使没有逾期，过多网贷记录也会降低房贷、信用卡审批通过率，建议尽早结清非必要网贷。"},
-    {q:"如何维护个人征信？",a:"1.按时足额还款，不要逾期；2.不要随意点网贷测试额度；3.控制信贷申请频率；4.定期自查个人征信报告；5.不要随便帮他人做担保。"},
-    {q:"逾期之后多久消除记录？",a:"征信逾期记录，在欠款全部结清当日起保留5年，5年后自动消除；如果欠款一直不还，逾期记录会一直保留。"},
-    {q:"负债过高怎么办？",a:"优先结清高利息网贷，停止新增借贷；梳理全部负债，做好收支规划；不要以贷养贷，以贷养贷只会让债务越滚越大。"},
-    {q:"什么叫连三累六？",a:"连三：连续3个月逾期；累六：两年内累计6次逾期。属于征信严重不良，绝大多数银行信贷会直接拒绝。"}
-  ])
-}
-
-
-// 用户状态
-let currentUser = Storage.get(STORAGE_KEYS.USER) || null;
-let page = "home"; // home / package / chat / mine / admin
-
-// ====================== 业务工具函数 ======================
-/** 敏感词检测 */
-function checkSensitive(text) {
-    const words = Storage.get(STORAGE_KEYS.SENSITIVE);
-    return words.some(w=>text.includes(w))
-}
-
-/** 创建订单 */
-function createOrder(pkg) {
-    const orders = Storage.get(STORAGE_KEYS.ORDER) || [];
-    const order = {
-        id: Date.now(),
-        pkgId: pkg.id,
-        name: pkg.name,
-        price: pkg.price,
-        count: pkg.count||0,
-        expire: pkg.expire||0,
-        createTime: new Date().toLocaleString(),
-        status:"pending",
-        uid: currentUser?.id
-    }
-    orders.push(order);
-    Storage.set(STORAGE_KEYS.ORDER, orders);
-    return order;
-}
-
-/** 模拟支付完成，更新用户会员/次数 */
-function paySuccess(orderId) {
-    const orders = Storage.get(STORAGE_KEYS.ORDER);
-    const idx = orders.findIndex(o=>o.id===orderId);
-    if(idx===-1) return;
-    orders[idx].status = "paid";
-    Storage.set(STORAGE_KEYS.ORDER, orders);
-
-    const pkg = orders[idx];
-    if(!currentUser) return;
-    // 单次包：增加提问次数
-    if(pkg.count>0){
-        currentUser.leftCount = (currentUser.leftCount||0) + pkg.count;
-    }
-    // 会员：设置过期时间
-    if(pkg.expire>0){
-        currentUser.vipExpire = Date.now() + pkg.expire;
-    }
-    Storage.set(STORAGE_KEYS.USER, currentUser);
-}
-
-/** 保存聊天记录 */
-function saveChat(question, answer) {
-    const chats = Storage.get(STORAGE_KEYS.CHAT) || [];
-    chats.push({
-        id:Date.now(),
-        uid:currentUser.id,
-        q:question,
-        a:answer,
-        time:new Date().toLocaleString()
-    })
-    Storage.set(STORAGE_KEYS.CHAT, chats);
-}
-
-/** 判断是否VIP */
-function isVip(){
-    if(!currentUser) return false;
-    return currentUser.vipExpire && Date.now() < currentUser.vipExpire;
-}
-
-/** 是否可以提问：VIP不限次数，普通看剩余次数 */
-function canAsk(){
-    if(!currentUser) return false;
-    if(isVip()) return true;
-    return (currentUser.leftCount||0) > 0;
-}
-
-/** 消耗一次提问次数 */
-function useAskCount(){
-    if(isVip()) return;
-    currentUser.leftCount -=1;
-    Storage.set(STORAGE_KEYS.USER, currentUser);
-}
-
-//套餐配置
-const packages = [
-    {id:1,name:"单次咨询",price:19,count:1,expire:0,desc:"1次金融知识问答"},
-    {id:2,name:"月度会员",price:89,count:0,expire:30*24*3600*1000,desc:"30天不限提问次数"},
-    {id:3,name:"季度会员",price:199,count:0,expire:90*24*3600*1000,desc:"90天不限提问次数"}
+const defaultSensitive = [
+    "帮我贷款","黑户下款","网贷口子","找放款渠道","代办贷款","帮我申请贷款",
+    "无视征信借钱","洗白征信","消除逾期","强制下款","付费修复征信","中介代办借款"
 ]
 
-// ====================== 页面渲染函数 ======================
+const defaultKnowledge = [
+    {
+        q:"征信逾期有什么影响",
+        a:"征信发生逾期之后，这条逾期记录会保存在个人征信报告中。申请房贷、车贷、信用卡以及各类银行信贷产品时，银行会查看你的征信，逾期记录会降低审批通过率，严重逾期会直接拒绝。逾期欠款全部结清后，逾期记录会保留5年，5年后自动删除；欠款如果一直没有还清，逾期记录会永久保留在报告上。网上宣称花钱消除征信逾期全部是诈骗，征信记录无法人为篡改。"
+    },
+    {
+        q:"查询征信次数太多会怎样",
+        a:"征信查询分为本人查询和机构硬查询。自己在官网查询属于本人查询，不会对征信造成负面影响；当你申请信用卡、网贷、贷款，金融机构查询你的征信，这叫硬查询。短时间内硬查询次数过多，银行会判断你资金紧张、到处借钱，会降低贷款审批通过率。建议半年内不要频繁申请信贷产品，一年自查征信2次就足够。"
+    },
+    {
+        q:"什么是负债率",
+        a:"负债率是衡量个人负债压力的指标，一般分为资产负债率和收入负债率。信贷审批参考较多的是收入负债率，即每月还款总额占月收入的比重。多数银行希望申请人负债率不要超过50%，负债太高，还款压力大，银行会认为还款风险高，贷款容易被拒绝。想要降低负债率，可以结清部分网贷、消费贷，减少每月还款额。"
+    },
+    {
+        q:"网贷多了有什么后果",
+        a:"网贷笔数多，就算全部按时还款没有逾期，也会带来不少负面影响。第一，拉高个人整体负债水平；第二，产生大量征信查询记录；第三，很多银行会介意客户网贷过多，申请房贷、信用卡时更容易被拒。建议尽量少碰网贷，不要以贷养贷，如果有多余资金优先结清高利息网贷。"
+    },
+    {
+        q:"如何维护个人征信",
+        a:"维护征信记住几点：1、所有信用卡、贷款按时足额还款，坚决不要逾期；2、不要随便点网贷额度测试，每点一次很多时候就会留下一次征信查询；3、控制信贷申请频率，不要短时间多头申请；4、每年1‑2次登录央行征信中心官网自查征信；5、不要随意帮别人做担保，对方逾期会直接记在你的征信报告上。"
+    },
+    {
+        q:"逾期之后多久消除记录",
+        a:"征信逾期记录不是逾期结束立刻消失。规则是：欠款全部结清当天开始计算，保留5年，5年后系统自动消除。如果你一直不还钱，逾期记录就会一直存在，不会自动消失。所以出现逾期第一件事就是尽快把欠款结清。"
+    },
+    {
+        q:"负债过高怎么办",
+        a:"负债过高不要慌张，首先停止继续申请新的贷款网贷，避免债务继续增加。梳理清楚自己所有负债，分清哪些利息高、哪些利息低。优先偿还利息高的网贷，减少利息压力。做好收支记账，缩减非必要消费。千万不要以贷养贷，借新还旧只会让债务越滚越大。如果压力过大，可以和正规金融机构沟通协商还款方案。"
+    },
+    {
+        q:"什么叫连三累六",
+        a:"连三，就是连续三个月没有按时还款，连续逾期；累六，两年之内累计发生六次逾期记录。连三累六属于征信严重不良，绝大多数银行会直接拒绝你的贷款、信用卡申请。出现这种情况，需要结清欠款，等待记录随时间消除。"
+    },
+    {
+        q:"怎么查询个人征信报告",
+        a:"可以登录中国人民银行征信中心官网，这是官方渠道，每年有2次免费简版征信查询机会；也可以携带本人身份证，前往人民银行网点或者授权商业银行网点打印详版征信报告。不要找第三方中介代查征信，会泄露你的个人身份信息。"
+    },
+    {
+        q:"中介说可以修复征信可信吗",
+        a:"完全不可信，属于典型金融骗局。征信记录是各个信贷机构如实上报给征信中心，不存在花钱洗白、付费修复逾期的操作。中介拿到你的身份材料之后，要么骗你的服务费，甚至拿你的信息做别的事情。只有欠款结清等待5年才会自动消除逾期。"
+    },
+    {
+        q:"征信报告上面的查询记录代表什么",
+        a:"征信查询记录会记录每一次查询主体和查询时间。本人查询是你自己查看征信；贷款审批、信用卡审批属于机构硬查询；贷后管理是银行对你已有账户进行定期复查，贷后管理查询一般不会影响审批。看征信重点看硬查询数量。"
+    },
+    {
+        q:"什么叫以贷养贷",
+        a:"以贷养贷就是不断申请新的网贷、贷款，拿新借到的钱去还旧的欠款。这种做法短期看上去解决还款压力，但是每一笔借款都会产生利息，债务会越滚越大，最后很容易全面逾期。一定要尽量避免这种行为。"
+    },
+    {
+        q:"网贷不还会怎么样",
+        a:"正规持牌机构的网贷逾期不还，会上报征信留下逾期记录，产生罚息违约金，平台会进行催收，长时间拖欠，还可能被机构起诉，影响个人正常生活。不要抱有网贷可以不还的想法。"
+    },
+    {
+        q:"担保对征信有什么影响",
+        a:"给别人做贷款担保，这笔负债会同时显示在你的征信报告上。如果对方没有按时还款发生逾期，逾期记录直接记到你的征信，同时你有义务代为偿还这笔债务。不要轻易给他人做担保。"
+    },
+    {
+        q:"办理房贷要看哪些征信内容",
+        a:"银行办理房贷会重点查看：有没有逾期记录、硬查询次数多不多、现有负债水平高不高、网贷笔数、对外担保情况。如果近期大量网贷、频繁申请贷款，房贷审批很容易受影响。"
+    }
+]
+
+function initStorage(){
+    if(!localStorage.getItem(STORAGE_KEYS.sensitiveWords)){
+        localStorage.setItem(STORAGE_KEYS.sensitiveWords, JSON.stringify(defaultSensitive))
+    }
+    if(!localStorage.getItem(STORAGE_KEYS.knowledgeBase)){
+        localStorage.setItem(STORAGE_KEYS.knowledgeBase, JSON.stringify(defaultKnowledge))
+    }
+    if(!localStorage.getItem(STORAGE_KEYS.chatList)){
+        localStorage.setItem(STORAGE_KEYS.chatList, JSON.stringify([]))
+    }
+}
+initStorage()
+
+function getStorage(key){
+    return JSON.parse(localStorage.getItem(key))
+}
+function setStorage(key,val){
+    localStorage.setItem(key,JSON.stringify(val))
+}
+
+let page = "home"
+let showAgreeModal = true
+let toastMsg = ""
+
+function checkSensitive(text){
+    const words = getStorage(STORAGE_KEYS.sensitiveWords)
+    for(let w of words){
+        if(text.includes(w)) return true
+    }
+    return false
+}
+
+function getLocalAnswer(question){
+    const kb = getStorage(STORAGE_KEYS.knowledgeBase)
+    for(let item of kb){
+        if(question.includes(item.q) || item.q.includes(question)){
+            return item.a
+        }
+    }
+    return "感谢咨询，本平台仅做征信信贷科普演示。你可以提问征信逾期、查询次数、负债率、网贷风险、征信防骗担保相关问题。本平台不办理任何借贷业务，办理信贷请前往持牌银行机构。"
+}
+
+function sendMsg(inputText){
+    const text = inputText.trim()
+    if(!text){ toastMsg = "请输入咨询问题"; setTimeout(()=>{toastMsg="";render()},1200); render(); return; }
+    if(checkSensitive(text)){ toastMsg = "该内容不在服务范围，禁止贷款相关咨询"; setTimeout(()=>{toastMsg="";render()},1500); render(); return; }
+
+    const chatList = getStorage(STORAGE_KEYS.chatList)
+    chatList.push({role:"user",content:text})
+    const answer = getLocalAnswer(text);
+    chatList.push({role:"bot",content:answer})
+    setStorage(STORAGE_KEYS.chatList,chatList)
+    render();
+}
+
+function goPage(p){ page = p; render() }
+
 function render(){
-    const app = document.getElementById("app");
-    // 公共头部导航
-    let navHtml = `
-    <header class="bg-primary text-white shadow">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="font-bold text-lg cursor-pointer" onclick="goto('home')">金融科普咨询</h1>
-            <div class="space-x-3 text-sm">
-                <span class="cursor-pointer" onclick="goto('home')">首页</span>
-                <span class="cursor-pointer" onclick="goto('package')">套餐</span>
-                <span class="cursor-pointer" onclick="goto('chat')">咨询问答</span>
-                <span class="cursor-pointer" onclick="goto('mine')">个人中心</span>
-                ${currentUser?.isAdmin?'<span class="cursor-pointer" onclick="goto(\'admin\')">后台</span>':''}
-                ${!currentUser?`<button onclick="showLogin()" class="bg-white text-primary px-2 py-1 rounded">登录/注册</button>`:
-                `<span>${currentUser.name}</span> <button onclick="logout()" class="px-2 py-1 border rounded">退出</button>`}
+    let html = ""
+    if(showAgreeModal){
+        html += `
+        <div class="modal-mask">
+            <div class="modal-box">
+                <h3 style="font-size:1.25rem;font-weight:bold;margin-bottom:0.75rem;">用户协议、隐私政策与免责声明</h3>
+                <div class="modal-scroll">
+                    <p><strong>免责声明：</strong>本网站仅作为教学演示项目，只提供金融知识科普，不提供贷款、征信修复、代办融资等真实业务。网站所有内容仅供学习参考，不构成任何投资、借贷建议。依据本站内容做出的行为风险由使用者自行承担。</p>
+                    <br>
+                    <p><strong>用户协议：</strong>1.本系统全部数据保存在浏览器本地，清除缓存数据将全部丢失；2.禁止发布借贷引流、诈骗相关内容；3.禁止利用本演示系统开展盈利经营活动。</p>
+                    <br>
+                    <p><strong>隐私政策：</strong>本演示不会收集、上传你的个人隐私信息，对话记录全部存储在你的本机浏览器。</p>
+                </div>
+                <div class="btn-group">
+                    <button onclick="window.disagreeModal()" class="btn btn-outline">拒绝并退出</button>
+                    <button onclick="window.agreeModal()" class="btn btn-primary">我已阅读并同意</button>
+                </div>
+            </div>
+        </div>
+        `
+    }
+    if(toastMsg){
+        html += `<div class="toast">${toastMsg}</div>`
+    }
+    html += `
+    <header>
+        <div class="header-inner">
+            <div class="header-title">金融科普咨询平台</div>
+            <div class="header-buttons">
+                <button onclick="goPage('home')" class="${page==='home'?'active':''}">首页</button>
+                <button onclick="goPage('chat')" class="${page==='chat'?'active':''}">在线问答</button>
             </div>
         </div>
     </header>
-    <div class="bg-warnBg text-warnText text-xs py-2 px-4 text-center">
-        ⚠️免责声明：本平台仅提供金融科普知识咨询，不从事助贷、贷款撮合、信贷导流，不对接放款机构，不承诺放款。办理信贷请前往持牌银行机构。
+    <div class="warn-bar">
+        ⚠️温馨提示：本平台仅科普，不办理贷款。凡是声称洗白征信、强制下款均属于骗局，请保护个人财产。
     </div>
-    `;
-
-    let pageHtml = "";
-    switch(page){
-        case "home":
-            pageHtml = renderHome();
-            break;
-        case "package":
-            pageHtml = renderPackage();
-            break;
-        case "chat":
-            pageHtml = renderChat();
-            break;
-        case "mine":
-            pageHtml = renderMine();
-            break;
-        case "admin":
-            pageHtml = renderAdmin();
-            break;
-    }
-
-    app.innerHTML = navHtml + `<main class="max-w-4xl mx-auto p-4 pb-20">${pageHtml}</main>`;
-}
-
-//首页
-function renderHome(){
-    return `
-    <div class="py-6">
-        <h2 class="text-2xl font-bold mb-3">金融科普咨询服务</h2>
-        <p class="text-gray-600 mb-6">解答征信、信贷常识、金融防坑等知识问题，仅做科普，不办理贷款业务。</p>
-        <div class="grid md:grid-cols-3 gap-4 my-8">
-            <div class="border rounded-lg p-4 bg-white shadow-sm">
-                <h3 class="font-semibold mb-2">征信解读</h3>
-                <p class="text-sm text-gray-500">逾期、查询次数、征信报告相关科普</p>
-            </div>
-            <div class="border rounded-lg p-4 bg-white shadow-sm">
-                <h3 class="font-semibold mb-2">信贷常识</h3>
-                <p class="text-sm text-gray-500">负债率、审批逻辑、银行规则科普</p>
-            </div>
-            <div class="border rounded-lg p-4 bg-white shadow-sm">
-                <h3 class="font-semibold mb-2">金融防骗</h3>
-                <p class="text-sm text-gray-500">消除征信、中介套路风险识别</p>
-            </div>
-        </div>
-        <button onclick="goto('package')" class="bg-primary text-white px-6 py-3 rounded-lg">查看服务套餐</button>
-    </div>
+    <main>
     `
-}
-
-//套餐页
-function renderPackage(){
-    let html = `<h2 class="text-xl font-bold mb-4">购买咨询套餐</h2><div class="grid md:grid-cols-3 gap-4">`;
-    packages.forEach(p=>{
+    if(page === "home"){
         html += `
-        <div class="bg-white border rounded-lg p-5 shadow-sm">
-            <h3 class="font-bold text-lg">${p.name}</h3>
-            <div class="text-3xl text-primary my-3">¥${p.price}</div>
-            <p class="text-sm text-gray-500 mb-4">${p.desc}</p>
-            <button onclick="buyPackage(${p.id})" class="w-full bg-primary text-white py-2 rounded">立即购买</button>
-        </div>
-        `
-    })
-    html += `</div>`;
-    return html;
-}
-
-//问答聊天页
-function renderChat(){
-    if(!currentUser){
-        return `<div class="py-10 text-center">请先登录后使用咨询 <button onclick="showLogin()" class="text-primary">去登录</button></div>`
-    }
-    let vipTip = isVip() ? `<span class="text-green-600">✅会员：不限提问次数</span>` : `<span>剩余提问次数：${currentUser.leftCount||0}次</span>`;
-
-    //读取当前用户聊天
-    const allChat = Storage.get(STORAGE_KEYS.CHAT)||[];
-    const myChat = allChat.filter(c=>c.uid === currentUser.id);
-
-    let chatHtml = "";
-    myChat.forEach(item=>{
-        chatHtml += `
-        <div class="my-3">
-            <div class="bg-blue-50 p-3 rounded-lg">
-                <div class="text-xs text-gray-400">${item.time}</div>
-                <div class="mt-1">${item.q}</div>
+        <section>
+            <h2>金融科普咨询服务</h2>
+            <p class="desc-text">解答征信、信贷常识、金融防坑等知识问题，仅做科普演示，不办理真实贷款业务。</p>
+            <div class="card-grid">
+                <div onclick="goPage('chat')" class="card-item">
+                    <h3>征信解读</h3>
+                    <p>逾期后果、征信查询次数、征信报告解读相关科普</p>
+                </div>
+                <div onclick="goPage('chat')" class="card-item">
+                    <h3>信贷常识</h3>
+                    <p>负债率概念、银行审批逻辑、网贷风险科普讲解</p>
+                </div>
+                <div onclick="goPage('chat')" class="card-item">
+                    <h3>金融防骗</h3>
+                    <p>识别消除征信骗局、中介套路，规避金融诈骗风险</p>
+                </div>
             </div>
-            <div class="bg-gray-100 p-3 rounded-lg mt-2">${item.a}</div>
+            <button onclick="goPage('chat')" class="full-btn">进入在线问答</button>
+
+            <div class="info-panel">
+                <h4 style="font-weight:bold;font-size:1.125rem;margin-bottom:0.5rem;">需要人工进一步咨询？</h4>
+                <p style="color:#4b5563;">复制微信号，打开微信添加好友咨询</p>
+                <div class="wx-text">${MY_WECHAT}</div>
+                <p class="small-note">本渠道仅做知识交流，不办理借贷业务</p>
+            </div>
+        </section>
+        `
+    }else if(page === "chat"){
+        const chatList = getStorage(STORAGE_KEYS.chatList)
+        html += `<h2>在线咨询问答</h2>`
+        html += `<p style="font-size:0.875rem;color:#6b7280;margin-bottom:0.75rem;">📄内置知识库模式，直接输入你的征信信贷问题提问</p>`
+        html += `<div class="chat-box" id="chatBox">`
+        if(chatList.length === 0){
+            html += `<div class="chat-empty">示例提问：征信逾期会带来什么影响？</div>`
+        }
+        for(let item of chatList){
+            if(item.role === "user"){
+                html += `<div class="msg-user"><span>${item.content}</span></div>`
+            }else{
+                html += `<div class="msg-bot"><span>${item.content}</span></div>`
+            }
+        }
+        html += `</div>`
+        html += `
+        <div class="chat-input-row">
+            <input id="chatInput" placeholder="请输入你的金融征信相关问题">
+            <button onclick="window.doSend()" class="send-btn">提交咨询</button>
+        </div>
+        <p class="small-note" style="margin-top:0.5rem;">禁止提问贷款、洗白征信类问题，系统将自动拦截敏感提问。</p>
+
+        <div class="info-panel">
+            <p style="color:#4b5563;">如需人工深度科普交流，复制微信号：<span class="wx-text">${MY_WECHAT}</span>，前往微信添加</p>
+            <p class="small-note">不提供借贷办理服务</p>
         </div>
         `
-    })
-
-    return `
-    <div>
-        <div class="flex justify-between items-center mb-3">
-            <h2 class="text-xl font-bold">咨询问答</h2>
-            <div>${vipTip}</div>
-        </div>
-        <div class="bg-white border rounded-lg p-4 min-h-[300px] max-h-[450px] overflow-y-auto mb-4">
-            ${myChat.length>0?chatHtml:`<div class="text-gray-400 text-center py-10">暂无咨询记录，请输入问题开始提问</div>`}
-        </div>
-        <textarea id="askInput" class="w-full border rounded p-3 min-h-[80px]" placeholder="请输入你的金融知识问题，禁止询问贷款办理、找渠道类问题"></textarea>
-        <div class="mt-2 flex justify-end">
-            <button onclick="submitAsk()" class="bg-primary text-white px-5 py-2 rounded">提交咨询</button>
-        </div>
-    </div>
+    }
+    html += `
+    </main>
+    <footer>©2026 金融科普咨询平台｜教学演示项目，不提供真实金融业务服务</footer>
     `
-}
-
-//个人中心
-function renderMine(){
-    if(!currentUser){
-        return `<div class="py-10 text-center">请登录 <button onclick="showLogin()" class="text-primary">登录/注册</button></div>`
-    }
-    const vipText = isVip() ? `会员有效期至：${new Date(currentUser.vipExpire).toLocaleString()}` : "非会员";
-    const leftCnt = currentUser.leftCount||0;
-    const orders = Storage.get(STORAGE_KEYS.ORDER)||[];
-    const myOrders = orders.filter(o=>o.uid===currentUser.id);
-
-    let orderHtml = "";
-    myOrders.forEach(o=>{
-        orderHtml += `<div class="border p-2 my-2 rounded text-sm">${o.name}｜${o.price}元｜${o.createTime}｜${o.status==="paid"?"已支付":"待支付"}</div>`
-    })
-
-    return `
-    <div class="bg-white p-5 rounded-lg shadow-sm">
-        <h2 class="text-xl font-bold mb-4">个人中心</h2>
-        <div class="space-y-2 mb-6">
-            <p>用户名：${currentUser.name}</p>
-            <p>会员状态：${vipText}</p>
-            <p>剩余提问次数：${leftCnt}</p>
-        </div>
-        <h3 class="font-semibold">我的订单</h3>
-        ${myOrders.length>0 ? orderHtml : "<p class='text-gray-400'>暂无订单</p>"}
-    </div>
-    `
-}
-
-//管理后台
-function renderAdmin(){
-    if(!currentUser || !currentUser.isAdmin){
-        return `<div class="py-10 text-center text-red-500">无后台权限</div>`
-    }
-    const usersAll = Storage.get(STORAGE_KEYS.USER)?[Storage.get(STORAGE_KEYS.USER)]:[];
-    const ordersAll = Storage.get(STORAGE_KEYS.ORDER)||[];
-    const chatsAll = Storage.get(STORAGE_KEYS.CHAT)||[];
-    const sensitiveList = Storage.get(STORAGE_KEYS.SENSITIVE);
-
-    return `
-    <div>
-        <h2 class="text-xl font-bold mb-4">管理后台</h2>
-        <div class="grid grid-cols-3 gap-3 mb-6">
-            <div class="bg-white p-4 rounded shadow-sm">用户数：${usersAll.length}</div>
-            <div class="bg-white p-4 rounded shadow-sm">订单总数：${ordersAll.length}</div>
-            <div class="bg-white p-4 rounded shadow-sm">问答总数：${chatsAll.length}</div>
-        </div>
-        <div class="bg-white p-4 rounded shadow-sm mb-4">
-            <h3 class="font-semibold mb-2">敏感词管理（逗号分隔）</h3>
-            <textarea id="senInput" class="w-full border p-2 min-h-[80px]">${sensitiveList.join(",")}</textarea>
-            <button onclick="saveSensitive()" class="mt-2 bg-primary text-white px-3 py-1 rounded">保存敏感词</button>
-        </div>
-    </div>
-    `
-}
-
-// ====================== 交互函数 ======================
-function goto(p){
-    page = p;
-    render();
-}
-
-//模拟登录弹窗
-window.showLogin = function(){
-    const name = prompt("请输入用户名（输入admin获得管理员权限）");
-    if(!name) return;
-    const isAdmin = name.toLowerCase()==="admin";
-    currentUser = {
-        id: Date.now(),
-        name: name,
-        leftCount:0,
-        vipExpire:0,
-        isAdmin: isAdmin
-    }
-    Storage.set(STORAGE_KEYS.USER, currentUser);
-    render();
-}
-
-window.logout = function(){
-    currentUser = null;
-    Storage.removeItem(STORAGE_KEYS.USER);
-    page = "home";
-    render();
-}
-
-window.buyPackage = function(pkgId){
-    if(!currentUser){
-        alert("请先登录");
-        showLogin();
-        return;
-    }
-    const pkg = packages.find(p=>p.id===pkgId);
-    const order = createOrder(pkg);
-    if(confirm(`确认支付 ${pkg.price} 元？（模拟支付）`)){
-        paySuccess(order.id);
-        alert("模拟支付成功！权益已到账");
-        render();
+    document.getElementById("app").innerHTML = html
+    if(page === "chat"){
+        const boxDom = document.getElementById("chatBox")
+        if(boxDom) boxDom.scrollTop = boxDom.scrollHeight
     }
 }
 
-window.submitAsk = async function(){
-    const inputDom = document.getElementById("askInput");
-    const q = inputDom.value.trim();
-    if(!q){
-        alert("请输入问题");
-        return;
-    }
-    if(checkSensitive(q)){
-        alert("该问题不在服务范围，不提供贷款办理、渠道相关服务");
-        return;
-    }
-    if(!canAsk()){
-        alert("提问次数不足，请购买套餐");
-        goto("package");
-        return;
-    }
-    useAskCount();
-
-    //模拟AI回答
-    const knowledge = Storage.get(STORAGE_KEYS.KNOWLEDGE);
-    let answer = "本平台仅为金融科普，内容仅供参考，不构成办理建议。建议前往银行网点咨询持牌工作人员，远离各类代办贷款中介，谨防服务费诈骗。";
-    //简易知识库匹配
-    for(let item of knowledge){
-        if(q.includes(item.q) || item.q.includes(q)){
-            answer = item.a;
-            break;
-        }
-    }
-    saveChat(q, answer);
-    render();
+window.agreeModal = function(){ showAgreeModal = false; render() }
+window.disagreeModal = function(){ alert("必须阅读并同意协议才可以访问网站") }
+window.goPage = goPage
+window.doSend = function(){
+    const inputDom = document.getElementById("chatInput")
+    sendMsg(inputDom.value)
+    inputDom.value = ""
 }
-
-window.saveSensitive = function(){
-    const val = document.getElementById("senInput").value;
-    const arr = val.split(",").map(i=>i.trim()).filter(i=>i);
-    Storage.set(STORAGE_KEYS.SENSITIVE, arr);
-    alert("敏感词保存成功");
-    render();
-}
-
-//页面初始化
-render();
+render()
 </script>
 </body>
 </html>
